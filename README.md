@@ -438,13 +438,13 @@ Se estiverem em computadores diferentes, confira o valor de `DECISION_URL` e use
 ## 14. Exemplos de Status na Tela Decisão
 
 ### Aprovado
-![Status Aprovado](path/to/image.png)
+![Status Aprovado](https://github.com/AsebiCode/Projeto-APS/blob/c2bd2561253393ad7a0df88ff08d3a3a92050fb0/status_aprovado.jpg)
 
 ### Análise Manual
-![Status Análise Manual](path/to/image.png)
+![Status Análise Manual](https://github.com/AsebiCode/Projeto-APS/blob/c2bd2561253393ad7a0df88ff08d3a3a92050fb0/status_analisemanual.jpg)
 
 ### Reprovado
-![Status Reprovado](path/to/image.png)
+![Status Reprovado](https://github.com/AsebiCode/Projeto-APS/blob/c2bd2561253393ad7a0df88ff08d3a3a92050fb0/status_reprovado.jpg)
 
 ---
 
