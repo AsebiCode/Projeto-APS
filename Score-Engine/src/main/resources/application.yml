@@ -29,6 +29,9 @@ app:
   decision:
     enabled: ${DECISION_ENABLED:true}
     url: ${DECISION_URL:http://localhost:8081}
+    # OBSERVAÇÕES:
+    # mudar localhost para o ip da máquina rodando o decisão
+    # se estiver rodando na mesma máquina, mantenha como localhost
   security:
     jwt:
       enabled: ${JWT_ENABLED:false}
