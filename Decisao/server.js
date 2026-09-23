@@ -98,7 +98,21 @@ const server = http.createServer(async (req, res) => {
         "text/css; charset=utf-8"
       );
     }
-
+    // Configuração da Swagger ui
+    if (req.method === "GET" && req.url === "/swagger") {
+      return servirArquivo(
+          res,
+          "swagger.html",
+          "text/html; charset=utf-8"
+      );
+  }
+  if (req.method === "GET" && req.url === "/openapi.yaml") {
+      return servirArquivo(
+          res,
+          "openapi.yaml",
+          "text/yaml; charset=utf-8"
+      );
+  }
     // JavaScript da interface
     if (req.method === "GET" && req.url === "/script.js") {
       return servirArquivo(
