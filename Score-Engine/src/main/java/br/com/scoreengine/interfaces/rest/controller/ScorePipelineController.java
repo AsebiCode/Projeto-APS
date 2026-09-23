@@ -12,6 +12,14 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(
+    name = "Score Pipeline",
+    description = "Pipeline de avaliação de score de crédito"
+)
+
 @RestController
 @RequestMapping("/api/v1/score")
 public class ScorePipelineController {
@@ -36,6 +44,11 @@ public class ScorePipelineController {
      * Calcula o Score e, na sequência, envia o resultado consolidado ao
      * microsserviço de Decisão.
      */
+
+    @Operation(
+        summary = "Avalia o score de um cliente",
+        description = "Recebe os dados do cliente, processa a avaliação de score e retorna o resultado calculado."
+    )
     @PostMapping("/evaluate")
     public ResponseEntity<UnifiedScoreResponseDTO> evaluate(
             @Valid @RequestBody UnifiedScoreRequestDTO request) {
