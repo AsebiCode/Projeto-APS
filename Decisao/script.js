@@ -30,7 +30,7 @@ function formatarData(value) {
   return Number.isNaN(data.getTime()) ? value : data.toLocaleString("pt-BR");
 }
 
-function renderResultado(resultado) {
+function renderResultado(resultado, payload) {
   const status = STATUS[resultado.decisao];
   const veredito = document.getElementById("veredito");
 
@@ -80,30 +80,86 @@ function renderResultado(resultado) {
       `).join("")
     : '<tr><td colspan="4">Nenhum componente informado.</td></tr>';
 
-  document.getElementById("jsonLogConteudo").textContent = JSON.stringify(resultado, null, 2);
+  document.getElementById("jsonLogConteudo").textContent =
+    JSON.stringify(payload, null, 2);
 }
 
 async function carregarUltimaDecisao() {
   const connectionStatus = document.getElementById("connectionStatus");
 
   try {
-    const response = await fetch("/api/v1/decisao/latest", { cache: "no-store" });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const response = await fetch("/api/v1/decisao/latest", {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
 
     const data = await response.json();
+
     if (data.resultado) {
       connectionStatus.textContent = "Score recebido";
       connectionStatus.className = "connection ativo";
-      renderResultado(data.resultado);
+
+      const payload = montarPayloadGrupo(data.resultado);
+
+      console.log("RESULTADO ORIGINAL:", data.resultado);
+      console.log("PAYLOAD NOVO:", payload);
+
+      renderResultado(data.resultado, payload);
     } else {
       connectionStatus.textContent = "Aguardando Score";
       connectionStatus.className = "connection";
     }
+
   } catch (error) {
     connectionStatus.textContent = "Serviço indisponível";
     connectionStatus.className = "connection erro";
     console.error(error);
   }
+}
+
+// MONTANDO PAYLOAD PARA OUTROS GRUPOS
+function formatarDataAprovacao(data) {
+  const dataObj = new Date(data);
+
+  if (Number.isNaN(dataObj.getTime())) {
+    return null;
+  }
+
+  return dataObj.toISOString().slice(0, 10);
+}
+
+function formatarModelo(modelo) {
+  if (!modelo) return null;
+
+  if (typeof modelo === "string") {
+    return modelo;
+  }
+
+  if (modelo.codigo && modelo.versao) {
+    return `${modelo.codigo} ${modelo.versao}`;
+  }
+
+  return null;
+}
+
+function montarPayloadGrupo(resultado, data = new Date()) {
+  return {
+    clienteId: resultado.clienteId,
+    tipoPessoa: resultado.tipoPessoa,
+    decisao: resultado.decisao,
+    dataAprovacao: formatarDataAprovacao(data),
+
+    contextoScore: {
+      scoreFinal: resultado.scoreFinal,
+      faixaRisco: resultado.faixaRisco,
+      probabilidadeDefault: resultado.probabilidadeDefault,
+      modelo: formatarModelo(resultado.modelo),
+      motivo: resultado.motivo
+    }
+  };
 }
 
 document.getElementById("btnAtualizar").addEventListener("click", carregarUltimaDecisao);
