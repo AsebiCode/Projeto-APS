@@ -90,6 +90,14 @@ const server = http.createServer(async (req, res) => {
       return servirPagina(res);
     }
 
+    if (req.method === "GET" && req.url === "/favicon.png") {
+      return servirArquivo(
+        res,
+        "favicon.png",
+        "image/png"
+      );
+    }
+
     // CSS
     if (req.method === "GET" && req.url === "/styles.css") {
       return servirArquivo(

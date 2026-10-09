@@ -102,10 +102,10 @@ async function carregarUltimaDecisao() {
       connectionStatus.textContent = "Score recebido";
       connectionStatus.className = "connection ativo";
 
-      const payload = montarPayloadGrupo(data.resultado);
+      const payload = montarPayloadJuros(data.resultado);
 
       console.log("RESULTADO ORIGINAL:", data.resultado);
-      console.log("PAYLOAD NOVO:", payload);
+      console.log("PAYLOAD PARA JUROS:", payload);
 
       renderResultado(data.resultado, payload);
     } else {
@@ -120,44 +120,40 @@ async function carregarUltimaDecisao() {
   }
 }
 
-// MONTANDO PAYLOAD PARA OUTROS GRUPOS
-function formatarDataAprovacao(data) {
-  const dataObj = new Date(data);
-
-  if (Number.isNaN(dataObj.getTime())) {
-    return null;
-  }
-
-  return dataObj.toISOString().slice(0, 10);
-}
-
+// Converte o modelo do Score para o formato textual do contextoScore.
 function formatarModelo(modelo) {
   if (!modelo) return null;
+  if (typeof modelo === "string") return modelo;
 
-  if (typeof modelo === "string") {
-    return modelo;
-  }
-
-  if (modelo.codigo && modelo.versao) {
-    return `${modelo.codigo} ${modelo.versao}`;
-  }
-
-  return null;
+  const codigo = modelo.codigo ?? "";
+  const versao = modelo.versao ?? "";
+  return [codigo, versao].filter(Boolean).join(" ") || null;
 }
 
-function montarPayloadGrupo(resultado, data = new Date()) {
+// Monta uma prévia do contrato esperado pelo grupo de Juros.
+// Os campos sem origem definida permanecem explicitamente como null.
+// Esta função apenas monta/exibe o JSON; ainda não envia POST para Juros.
+function montarPayloadJuros(resultado) {
   return {
-    clienteId: resultado.clienteId,
-    tipoPessoa: resultado.tipoPessoa,
-    decisao: resultado.decisao,
-    dataAprovacao: formatarDataAprovacao(data),
-
+    identificador: resultado.operacaoID ?? null,
+    cliente: {
+      tipoPessoa: resultado.tipoPessoa ?? null,
+      documento: resultado.clienteId ?? null
+    },
+    decisao: resultado.decisao ?? null,
+    valor: null,
+    modalidade: null,
+    score: resultado.scoreFinal ?? null,
+    probabilidadeDefault: resultado.probabilidadeDefault ?? null,
+    prazoMeses: null,
+    dataLiberacao: null,
+    primeiroRelacionamento: null,
     contextoScore: {
-      scoreFinal: resultado.scoreFinal,
-      faixaRisco: resultado.faixaRisco,
-      probabilidadeDefault: resultado.probabilidadeDefault,
+      scoreFinal: resultado.scoreFinal ?? null,
+      faixaRisco: resultado.faixaRisco ?? null,
+      probabilidadeDefault: resultado.probabilidadeDefault ?? null,
       modelo: formatarModelo(resultado.modelo),
-      motivo: resultado.motivo
+      motivo: resultado.motivo ?? null
     }
   };
 }
