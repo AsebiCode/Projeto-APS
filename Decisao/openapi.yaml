@@ -6,7 +6,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:8081
+  - url: http://10.114.35.2:8081
 
 paths:
 
@@ -27,6 +27,11 @@ paths:
                 - faixaRisco
                 - probabilidadeDefault
               properties:
+                operacaoID:
+                  type: string
+                  nullable: true
+                  description: Identificador criado pelo grupo iniciador da esteira, quando disponível.
+                  example: "OP-2026-000123"
                 clienteId:
                   type: string
                   example: "12345678901"

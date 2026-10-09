@@ -19,11 +19,6 @@ function validarResultadoScore(scoreResult) {
   }
 }
 
-/**
- * Aplica a política de decisão atualmente existente no módulo de Decisão.
- * Nenhum dado cadastral adicional é solicitado: a decisão utiliza apenas o
- * resultado entregue pelo Score.
- */
 function decidirScore(scoreResult) {
   validarResultadoScore(scoreResult);
 
@@ -57,6 +52,7 @@ function processarResultadoScore(scoreResult) {
     : [];
 
   return {
+    operacaoID: scoreResult.operacaoID ?? null,
     clienteId: scoreResult.clienteId,
     tipoPessoa: scoreResult.tipoPessoa ?? null,
     decisao: resultado.decisao,
