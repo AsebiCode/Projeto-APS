@@ -66,6 +66,13 @@ function processarResultadoScore(scoreResult) {
     componentes: Array.isArray(scoreResult.componentes) ? scoreResult.componentes : [],
     fatoresImpacto,
     recebidoEm: new Date().toISOString(),
+    identificador: scoreResult.identificador ?? scoreResult.operacaoID ?? null,
+    operacaoID: scoreResult.operacaoID ?? scoreResult.identificador ?? null,
+    valor: scoreResult.valor ?? null,
+    modalidade: scoreResult.modalidade ?? null,
+    prazoMeses: scoreResult.prazoMeses ?? null,
+    dataLiberacao: scoreResult.dataLiberacao ?? null,
+    primeiroRelacionamento: scoreResult.primeiroRelacionamento ?? null,
   };
 }
 

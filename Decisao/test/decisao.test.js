@@ -55,3 +55,22 @@ describe("processarResultadoScore", () => {
     expect(resultado.componentes).toEqual(score.componentes);
   });
 });
+test("preserva os campos provisórios da solicitação", () => {
+    const score = criarScore({
+      identificador: "OP-2026-000123",
+      valor: 10000,
+      modalidade: "CREDITO_PESSOAL",
+      prazoMeses: 24,
+      dataLiberacao: "2026-11-01",
+      primeiroRelacionamento: false,
+    });
+
+    const resultado = processarResultadoScore(score);
+
+    expect(resultado.identificador).toBe("OP-2026-000123");
+    expect(resultado.valor).toBe(10000);
+    expect(resultado.modalidade).toBe("CREDITO_PESSOAL");
+    expect(resultado.prazoMeses).toBe(24);
+    expect(resultado.dataLiberacao).toBe("2026-11-01");
+    expect(resultado.primeiroRelacionamento).toBe(false);
+  });

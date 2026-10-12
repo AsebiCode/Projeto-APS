@@ -135,19 +135,19 @@ function formatarModelo(modelo) {
 // Esta função apenas monta/exibe o JSON; ainda não envia POST para Juros.
 function montarPayloadJuros(resultado) {
   return {
-    identificador: resultado.operacaoID ?? null,
+    identificador: resultado.identificador ?? resultado.operacaoID ?? null,
     cliente: {
       tipoPessoa: resultado.tipoPessoa ?? null,
       documento: resultado.clienteId ?? null
     },
     decisao: resultado.decisao ?? null,
-    valor: null,
-    modalidade: null,
+    valor: resultado.valor ?? null,
+    modalidade: resultado.modalidade ?? null,
     score: resultado.scoreFinal ?? null,
     probabilidadeDefault: resultado.probabilidadeDefault ?? null,
-    prazoMeses: null,
-    dataLiberacao: null,
-    primeiroRelacionamento: null,
+    prazoMeses: resultado.prazoMeses ?? null,
+    dataLiberacao: resultado.dataLiberacao ?? null,
+    primeiroRelacionamento: resultado.primeiroRelacionamento ?? null,
     contextoScore: {
       scoreFinal: resultado.scoreFinal ?? null,
       faixaRisco: resultado.faixaRisco ?? null,
