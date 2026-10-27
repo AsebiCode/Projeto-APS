@@ -10,7 +10,13 @@ const STATUS = {
   REPROVADO: { classe: "reprovado", titulo: "REPROVADO", icone: ICONES.reprovado }
 };
 
-const operacoesEncaminhadasParaJuros = new Set();
+let chaveOperacaoExibida = null;
+
+const painelRevisao = document.getElementById("analiseManualPanel");
+
+if (painelRevisao) {
+  painelRevisao.hidden = true;
+}
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -33,12 +39,42 @@ function formatarData(value) {
 }
 
 function renderResultado(resultado, payload) {
+  chaveOperacaoExibida =
+  resultado.identificador ??
+  resultado.operacaoID ??
+  resultado.recebidoEm ??
+  null;
+
+if (painelRevisao) {
+  painelRevisao.hidden = resultado.decisao !== "ANALISE_MANUAL";
+}
+
+const integracaoJuros =
+  resultado.decisao !== "ANALISE_MANUAL" && resultado.integracaoJuros
+    ? `<div class="detalhe status-integracao">
+         Integração com Juros: ${escapeHtml(resultado.integracaoJuros.status)}
+         ${resultado.integracaoJuros.mensagem
+           ? ` — ${escapeHtml(resultado.integracaoJuros.mensagem)}`
+           : ""}
+       </div>`
+    : "";
+
   const status = STATUS[resultado.decisao];
   const veredito = document.getElementById("veredito");
 
   if (!status) {
     veredito.className = "verdict-banner reprovado";
-    veredito.innerHTML = `<span class="verdict-texto"><div class="titulo">DECISÃO INVÁLIDA</div><div class="detalhe">O serviço retornou um estado desconhecido.</div></span>`;
+
+    veredito.className = `verdict-banner ${status.classe}`;
+
+    veredito.innerHTML = `
+      <span class="verdict-icone">${status.icone}</span>
+      <span class="verdict-texto">
+        <div class="titulo">${status.titulo}</div>
+        <div class="detalhe">${escapeHtml(resultado.motivo)}</div>
+        ${integracaoJuros}
+      </span>
+    `;
     return;
   }
 
@@ -47,9 +83,19 @@ function renderResultado(resultado, payload) {
     <span class="verdict-icone">${status.icone}</span>
     <span class="verdict-texto">
       <div class="titulo">${status.titulo}</div>
-      <div class="detalhe">${escapeHtml(resultado.motivo)}</div>
+      <div class="detalhe">${escapeHtml(resultado.motivo)}${integracaoJuros}</div>
     </span>
   `;
+
+  document.getElementById("btnAprovarManual")
+    .addEventListener("click", () => {
+      registrarDecisaoManual("APROVADO");
+    });
+
+  document.getElementById("btnReprovarManual")
+    .addEventListener("click", () => {
+      registrarDecisaoManual("REPROVADO");
+    });
 
   document.getElementById("cards").hidden = false;
   document.getElementById("metadata").hidden = false;
@@ -84,6 +130,59 @@ function renderResultado(resultado, payload) {
 
   document.getElementById("jsonLogConteudo").textContent =
     JSON.stringify(payload, null, 2);
+}
+
+async function registrarDecisaoManual(decisao) {
+  const feedback = document.getElementById("feedbackRevisao");
+  const campoMotivo = document.getElementById("motivoReprovacao");
+  const btnAprovar = document.getElementById("btnAprovarManual");
+  const btnReprovar = document.getElementById("btnReprovarManual");
+
+  const motivo = campoMotivo.value.trim();
+
+  if (decisao === "REPROVADO" && !motivo) {
+    feedback.textContent = "Informe o motivo da reprovação.";
+    campoMotivo.focus();
+    return;
+  }
+
+  feedback.textContent = "Registrando decisão...";
+
+  btnAprovar.disabled = true;
+  btnReprovar.disabled = true;
+
+  try {
+    const response = await fetch("/api/v1/decisao/revisao", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        decisao,
+        motivo: decisao === "REPROVADO" ? motivo : "",
+        chaveOperacao: chaveOperacaoExibida
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.mensagem || "Não foi possível registrar a decisão.");
+    }
+
+    renderResultado(data, montarPayloadJuros(data));
+
+    if (decisao === "REPROVADO") {
+      console.log("Operação reprovada. Motivo:", motivo);
+    }
+
+  } catch (error) {
+    feedback.textContent = error.message;
+    console.error("Erro ao registrar decisão manual:", error);
+  } finally {
+    btnAprovar.disabled = false;
+    btnReprovar.disabled = false;
+  }
 }
 
 async function carregarUltimaDecisao() {

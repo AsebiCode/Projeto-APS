@@ -7,6 +7,30 @@ const PORT = Number(process.env.DECISION_PORT || 8081);
 const HOST = process.env.DECISION_HOST || "0.0.0.0";
 const PUBLIC_DIR = __dirname;
 
+const LOG_DIR = path.join(PUBLIC_DIR, "logs");
+const REPROVACOES_LOG = path.join(LOG_DIR, "reprovacoes.txt");
+
+function registrarReprovacao(resultado, motivo, origem) {
+  fs.mkdirSync(LOG_DIR, { recursive: true });
+
+  const motivoSeguro = String(motivo || "Motivo não informado")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const linhas = [
+    `Data/hora (UTC): ${new Date().toISOString()}`,
+    `Origem: ${origem}`,
+    `Identificador: ${resultado.identificador ?? resultado.operacaoID ?? "Não informado"}`,
+    `Score: ${resultado.scoreFinal ?? "Não informado"}`,
+    `Faixa de risco: ${resultado.faixaRisco ?? "Não informada"}`,
+    `Motivo: ${motivoSeguro}`,
+    "-".repeat(60),
+    "",
+  ];
+
+  fs.appendFileSync(REPROVACOES_LOG, linhas.join("\n"), "utf8");
+}
+
 // Definir porta do grupo Juros aqui:
 const JUROS_URL = (process.env.JUROS_URL || "http://10.114.35.11:5000").trim().replace(/\/+$/, "");
 
@@ -43,11 +67,10 @@ function montarPayloadJuros(resultado) {
       faixaRisco: resultado.faixaRisco ?? null,
       probabilidadeDefault: resultado.probabilidadeDefault ?? null,
       modelo: formatarModelo(resultado.modelo),
-      motivo: resultado.motivo ?? null
+      motivo: resultado.motivoScoreOriginal ?? resultado.motivo ?? null
     }
   };
 }
-
 
 function validarPayloadJuros(payload) {
   const camposAusentes = [];
@@ -84,7 +107,6 @@ function validarPayloadJuros(payload) {
 }
 
 async function enviarOperacaoParaJuros(payload) {
-  //console.log(`${JSON.stringify(payload)} Bolo de Mulango`);
   const response = await fetch(`${JUROS_URL}/api/operacoes`, {
     method: "POST",
     headers: {
@@ -94,10 +116,9 @@ async function enviarOperacaoParaJuros(payload) {
     body: JSON.stringify(payload),
   });
 
-  const textoResposta = await response.json();
+  const textoResposta = await response.text();
   let respostaJuros = null;
-  console.log(textoResposta);
-/*
+
   if (textoResposta) {
     try {
       respostaJuros = JSON.parse(textoResposta);
@@ -105,10 +126,10 @@ async function enviarOperacaoParaJuros(payload) {
       respostaJuros = textoResposta;
     }
   }
-*/
+
   if (!response.ok) {
     return {
-      status: response.ResponseText, // Melhor que "ERRO_HTTP",
+      status: "ERRO_HTTP",
       httpStatus: response.status,
       mensagem: `O serviço Juros respondeu com HTTP ${response.status}.`,
       resposta: respostaJuros,
@@ -333,6 +354,102 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    // Análise Manual
+    // Decisão da equipe
+    if (
+      req.method === "POST" &&
+      req.url === "/api/v1/decisao/revisao"
+    ) {
+      const revisao = await lerJson(req);
+
+      if (!ultimaDecisao || ultimaDecisao.decisao !== "ANALISE_MANUAL") {
+        return enviarJson(res, 409, {
+          status: "REVISAO_NAO_DISPONIVEL",
+          mensagem: "Não existe operação pendente de análise manual."
+        });
+      }
+
+      const chaveAtual =
+        ultimaDecisao.identificador ??
+        ultimaDecisao.operacaoID ??
+        ultimaDecisao.recebidoEm ??
+        null;
+
+      if (
+        revisao.chaveOperacao != null &&
+        chaveAtual != null &&
+        String(revisao.chaveOperacao) !== String(chaveAtual)
+      ) {
+        return enviarJson(res, 409, {
+          status: "OPERACAO_DIFERENTE",
+          mensagem: "A operação exibida não corresponde à operação pendente."
+        });
+      }
+
+      const decisao = String(revisao.decisao ?? "").toUpperCase();
+      const motivo = typeof revisao.motivo === "string"
+        ? revisao.motivo.trim()
+        : "";
+
+      if (!["APROVADO", "REPROVADO"].includes(decisao)) {
+        return enviarJson(res, 400, {
+          status: "DECISAO_INVALIDA",
+          mensagem: "Informe APROVADO ou REPROVADO."
+        });
+      }
+
+      if (decisao === "REPROVADO" && !motivo) {
+        return enviarJson(res, 400, {
+          status: "MOTIVO_OBRIGATORIO",
+          mensagem: "Informe o motivo da reprovação."
+        });
+      }
+
+      const motivoOriginal =
+        ultimaDecisao.motivoScoreOriginal ??
+        ultimaDecisao.motivo ??
+        null;
+
+      const dataRevisao = new Date().toISOString();
+
+      ultimaDecisao = {
+        ...ultimaDecisao,
+        decisao,
+        motivoScoreOriginal: motivoOriginal,
+        motivo: decisao === "REPROVADO"
+          ? motivo
+          : "Aprovado manualmente.",
+        revisaoManual: {
+          decisao,
+          motivo: decisao === "REPROVADO" ? motivo : null,
+          data: dataRevisao
+        }
+      };
+
+      if (decisao === "REPROVADO") {
+        registrarReprovacao(ultimaDecisao, motivo, "MANUAL");
+
+        ultimaDecisao.integracaoJuros = {
+          status: "NAO_ENCAMINHADO",
+          mensagem: "Operação reprovada manualmente."
+        };
+
+        console.log(
+          `[DECISAO] Operação ${chaveAtual ?? "sem identificador"} reprovada manualmente.`
+        );
+      } else {
+        // A integração existente continua sendo responsável pelo envio.
+        ultimaDecisao.integracaoJuros =
+          await encaminharParaJuros(ultimaDecisao);
+
+        console.log(
+          `[DECISAO] Aprovação manual: ${ultimaDecisao.integracaoJuros.status}`
+        );
+      }
+
+      return enviarJson(res, 200, ultimaDecisao);
+    }
+
     // Resultado enviado pelo Score
     if (
       req.method === "POST" &&
@@ -341,6 +458,13 @@ const server = http.createServer(async (req, res) => {
       const scoreResult = await lerJson(req);
 
       ultimaDecisao = processarResultadoScore(scoreResult);
+      if (ultimaDecisao.decisao === "REPROVADO") {
+        registrarReprovacao(
+          ultimaDecisao,
+          ultimaDecisao.motivo,
+          "AUTOMATICA"
+        );
+      }
       ultimaDecisao.integracaoJuros = await encaminharParaJuros(ultimaDecisao);
 
       console.log(

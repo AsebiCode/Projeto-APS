@@ -53,6 +53,42 @@
       </article>
     </div>
 
+    <section class="panel-block revisao-manual"
+      id="analiseManualPanel"
+      hidden
+      aria-labelledby="tituloRevisaoManual">
+
+      <h3 id="tituloRevisaoManual">Revisão manual necessária</h3>
+
+      <p class="texto-revisao">
+        A operação está na faixa de análise manual.
+        Aprove para encaminhar ao serviço Juros ou reprove
+        informando o motivo.
+      </p>
+
+      <label for="motivoReprovacao">
+        Motivo da reprovação
+        <span>(obrigatório apenas ao reprovar)</span>
+      </label>
+
+      <textarea id="motivoReprovacao"
+        rows="3"
+        placeholder="Descreva o motivo da reprovação..."></textarea>
+
+      <div class="acoes-revisao">
+        <button class="btn-aprovar" id="btnAprovarManual" type="button">
+          Aprovar e enviar para Juros
+        </button>
+
+        <button class="btn-reprovar" id="btnReprovarManual" type="button">
+          Reprovar e encerrar
+        </button>
+      </div>
+
+      <p class="feedback-revisao" id="feedbackRevisao"
+        role="status" aria-live="polite"></p>
+    </section>
+
     <div class="grid-two" id="metadata" hidden>
       <section class="panel-block">
         <h3>Metadados do Score</h3>
