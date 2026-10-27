@@ -1,0 +1,22 @@
+{
+  "identificador": "OP-2026-000123",
+  "cliente": {
+    "tipoPessoa": "PF",
+    "documento": "76576576767"
+  },
+  "decisao": "APROVADO",
+  "valor": 10000,
+  "modalidade": "CREDITO_PESSOAL",
+  "score": 692,
+  "probabilidadeDefault": 0.0308,
+  "prazoMeses": 24,
+  "dataLiberacao": "2026-10-27",
+  "primeiroRelacionamento": false,
+  "contextoScore": {
+    "scoreFinal": 692,
+    "faixaRisco": "BOM",
+    "probabilidadeDefault": 0.0308,
+    "modelo": "SCORE_PF v1.1.0",
+    "motivo": "Score 692 atende ao mínimo para aprovação automática."
+  }
+}

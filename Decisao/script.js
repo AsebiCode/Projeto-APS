@@ -10,6 +10,8 @@ const STATUS = {
   REPROVADO: { classe: "reprovado", titulo: "REPROVADO", icone: ICONES.reprovado }
 };
 
+const operacoesEncaminhadasParaJuros = new Set();
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -133,6 +135,9 @@ function formatarModelo(modelo) {
 // Monta uma prévia do contrato esperado pelo grupo de Juros.
 // Os campos sem origem definida permanecem explicitamente como null.
 // Esta função apenas monta/exibe o JSON; ainda não envia POST para Juros.
+
+// COMENTADO POR NÃO ENVIAR DIRETAMENTE AO SERVER.JS
+
 function montarPayloadJuros(resultado) {
   return {
     identificador: resultado.identificador ?? resultado.operacaoID ?? null,
