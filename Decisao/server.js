@@ -1,6 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const aplicarCors = require("./src/middlewares/cors");
 const { processarResultadoScore } = require("./src/auditoria");
 
 const PORT = Number(process.env.DECISION_PORT || 8081);
@@ -286,6 +287,11 @@ function lerJson(req) {
 
 const server = http.createServer(async (req, res) => {
   try {
+    // Aplicar CORS
+    if (aplicarCors(req, res)) {
+        return;
+    }
+    
     // Página principal
     if (req.method === "GET" && req.url === "/") {
       return servirPagina(res);

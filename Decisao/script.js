@@ -205,8 +205,8 @@ async function carregarUltimaDecisao() {
 
       const payload = montarPayloadJuros(data.resultado);
 
-      console.log("RESULTADO ORIGINAL:", data.resultado);
-      console.log("PAYLOAD PARA JUROS:", payload);
+      // console.log("RESULTADO ORIGINAL:", data.resultado);
+      // console.log("PAYLOAD PARA JUROS:", payload);
 
       renderResultado(data.resultado, payload);
     } else {
