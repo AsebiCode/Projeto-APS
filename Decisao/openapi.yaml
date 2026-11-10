@@ -6,7 +6,8 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://10.114.35.2:8081
+  - url: http://localhost:8080
+  ## trocar IP estático (10.114.35.2:8081)  por localhost. com IP estático o swagger n funfa
 
 paths:
 
