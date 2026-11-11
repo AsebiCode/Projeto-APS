@@ -1,12 +1,11 @@
-require("dotenv").config();
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const aplicarCors = require("./src/middlewares/cors");
 const { processarResultadoScore } = require("./src/auditoria");
 
-const PORT = Number(process.env.PORT || process.env.DECISION_PORT || 8081);
-const HOST = process.env.HOST || process.env.DECISION_HOST || "0.0.0.0";
+const PORT = Number(process.env.DECISION_PORT || 8081);
+const HOST = process.env.DECISION_HOST || "0.0.0.0";
 const PUBLIC_DIR = __dirname;
 
 const LOG_DIR = path.join(PUBLIC_DIR, "logs");
@@ -34,7 +33,7 @@ function registrarReprovacao(resultado, motivo, origem) {
 }
 
 // Definir porta do grupo Juros aqui:
-const JUROS_URL = (process.env.JUROS_URL || "").trim().replace(/\/+$/, "");
+const JUROS_URL = (process.env.JUROS_URL || "http://10.114.35.11:5000").trim().replace(/\/+$/, "");
 
 let ultimaDecisao = null;
 const operacoesEnviadasParaJuros = new Set();
