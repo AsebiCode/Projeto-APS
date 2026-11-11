@@ -7,12 +7,9 @@
     "start": "node server.js",
     "test": "jest"
   },
-  "keywords": ["credito", "decisao", "microsservico", "score" ],
+  "keywords": ["credito", "decisao", "microsservico", "score"],
   "license": "UNLICENSED",
   "devDependencies": {
     "jest": "^29.7.0"
-  },
-  "dependencies": {
-    "dotenv": "^18.0.10"
   }
 }
