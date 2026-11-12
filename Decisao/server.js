@@ -7,6 +7,33 @@ const PORT = Number(process.env.DECISION_PORT || 8081);
 const HOST = process.env.DECISION_HOST || "0.0.0.0";
 const PUBLIC_DIR = __dirname;
 
+const LOG_DIR = path.join(PUBLIC_DIR, "logs");
+const REPROVACOES_LOG = path.join(LOG_DIR, "reprovacoes.txt");
+
+function registrarReprovacao(resultado, motivo, origem) {
+  fs.mkdirSync(LOG_DIR, { recursive: true });
+
+  const motivoSeguro = String(motivo || "Motivo não informado")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const linhas = [
+    `Data/hora (UTC): ${new Date().toISOString()}`,
+    `Origem: ${origem}`,
+    `Identificador: ${resultado.identificador ?? resultado.operacaoID ?? "Não informado"}`,
+    `Score: ${resultado.scoreFinal ?? "Não informado"}`,
+    `Faixa de risco: ${resultado.faixaRisco ?? "Não informada"}`,
+    `Motivo: ${motivoSeguro}`,
+    "-".repeat(60),
+    "",
+  ];
+
+  fs.appendFileSync(REPROVACOES_LOG, linhas.join("\n"), "utf8");
+}
+
+// Definir porta do grupo Juros aqui:
+const JUROS_URL = (process.env.JUROS_URL || "http://10.114.35.11:5000").trim().replace(/\/+$/, "");
+
 let ultimaDecisao = null;
 
 function enviarJson(res, statusCode, payload) {
