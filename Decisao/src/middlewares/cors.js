@@ -1,10 +1,10 @@
 const ORIGENS_PERMITIDAS = [
     // Score
     "http://localhost:8080",
-    "http://{ip}:8080",
+    process.env.SCORE_URL,
     // Juros
     "http://localhost:5000",
-    "http://{ip}:5000"
+    process.env.JUROS_URL
 ];
 
 function aplicarCors(req, res) {

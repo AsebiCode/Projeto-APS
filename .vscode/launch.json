@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "ScoreEngineApplication",
+            "request": "launch",
+            "mainClass": "br.com.scoreengine.ScoreEngineApplication"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-ScoreEngineApplication<score-engine>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "br.com.scoreengine.ScoreEngineApplication",
+            "projectName": "score-engine",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
