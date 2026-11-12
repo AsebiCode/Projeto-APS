@@ -1,0 +1,14 @@
+Data/hora (UTC): 2026-11-12T15:30:51.910Z
+Origem: AUTOMATICA
+Identificador: OP-2026-000124
+Score: 385
+Faixa de risco: REGULAR
+Motivo: Score 385 abaixo do mínimo aceitável (400).
+------------------------------------------------------------
+Data/hora (UTC): 2026-11-12T15:31:07.462Z
+Origem: MANUAL
+Identificador: OP-2026-000124
+Score: 455
+Faixa de risco: REGULAR
+Motivo: nao
+------------------------------------------------------------
