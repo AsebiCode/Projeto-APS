@@ -64,6 +64,7 @@ function montarPayloadJuros(resultado) {
     prazoMeses: resultado.prazoMeses ?? null,
     dataLiberacao: resultado.dataLiberacao ?? null,
     primeiroRelacionamento: resultado.primeiroRelacionamento ?? null,
+    amortizacao: resultado.amortizacao ?? null,
     contextoScore: {
       scoreFinal: resultado.scoreFinal ?? null,
       faixaRisco: resultado.faixaRisco ?? null,
@@ -103,6 +104,9 @@ function validarPayloadJuros(payload) {
   }
   if (typeof payload.primeiroRelacionamento !== "boolean") {
     camposAusentes.push("primeiroRelacionamento");
+  }
+  if (typeof payload.amortizacao !== "string" || !payload.amortizacao.trim()) {
+    camposAusentes.push("amortizacao");
   }
 
   return camposAusentes;

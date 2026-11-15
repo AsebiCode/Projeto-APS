@@ -252,6 +252,7 @@ function montarPayloadJuros(resultado) {
     prazoMeses: resultado.prazoMeses ?? null,
     dataLiberacao: resultado.dataLiberacao ?? null,
     primeiroRelacionamento: resultado.primeiroRelacionamento ?? null,
+    amortizacao: resultado.amortizacao ?? null,
     contextoScore: {
       scoreFinal: resultado.scoreFinal ?? null,
       faixaRisco: resultado.faixaRisco ?? null,

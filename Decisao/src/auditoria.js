@@ -73,6 +73,7 @@ function processarResultadoScore(scoreResult) {
     prazoMeses: scoreResult.prazoMeses ?? null,
     dataLiberacao: scoreResult.dataLiberacao ?? null,
     primeiroRelacionamento: scoreResult.primeiroRelacionamento ?? null,
+    amortizacao: scoreResult.amortizacao ?? null
   };
 }
 
