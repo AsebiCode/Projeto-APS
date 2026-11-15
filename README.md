@@ -94,6 +94,10 @@ Entre na pasta:
 ```powershell
 cd Decisao
 ```
+Vá no cmd e execute o seguinte comando:
+```
+copy .env.example .env
+```
 
 Inicie o serviço:
 
