@@ -1,0 +1,7 @@
+Data/hora (UTC): 2026-11-15T19:07:00.880Z
+Origem: MANUAL
+Identificador: OP-2026-000123
+Score: 475
+Faixa de risco: REGULAR
+Motivo: nao mano
+------------------------------------------------------------
